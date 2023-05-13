@@ -8,7 +8,11 @@ EngRusDict::EngRusDict() :
 EngRusDict::~EngRusDict() {
 	this->clear();
 }
-EngRusDict::EngRusDict(EngRusDict&& other) noexcept{
+EngRusDict::EngRusDict(const EngRusDict& other) {
+	this->count_ = other.count_;
+	this->dict_ = other.dict_->clone();
+}
+EngRusDict::EngRusDict(EngRusDict&& other) noexcept {
 	this->dict_ = other.dict_;
 	this->count_ = other.count_;
 	other.dict_ = nullptr;
@@ -20,18 +24,19 @@ EngRusDict& EngRusDict::operator=(EngRusDict&& other) noexcept {
 	}
 	return *this;
 }
+EngRusDict& EngRusDict::operator=(const EngRusDict& other) {
+	if (this != &other) {
+		EngRusDict temp(other);
+		swap(temp);
+	}
+	return *this;
+}
 
 void EngRusDict::insertWord(const std::string& newWord) {
 	try {
-		/*RBTNode newNode(newWord);
-		if (this->isEmpty()) {
-			this->dict_ = new RedBlackTree< RBTNode >;
-		}
-		this->dict_->insert(newWord);*/
 		RBTNodePtr newNode = new RBTNode(newWord);
 		insertWord(newNode);
 		this->count_++;
-		delete newNode;
 	}
 	catch (std::bad_alloc& e) {
 		std::cerr << "Error " << e.what();
@@ -40,13 +45,15 @@ void EngRusDict::insertWord(const std::string& newWord) {
 }
 void EngRusDict::insertManyTrans(const std::string& word, const DoubleList<std::string>& newTransl) {
 	RBTNodePtr newNodeTransl = this->searchWordNode(word);
-	if (newNodeTransl != nullptr) {
-		insertManyTrans(newNodeTransl, newTransl);
-	}
+	insertManyTrans(newNodeTransl, newTransl);
 }
-
-void EngRusDict::insertManyTrans(RBTNodePtr word, const DoubleList<std::string>& newTransl) {
-	word->insertManyTransl(newTransl);
+void EngRusDict::insertTranslate(const std::string& word, const std::string& newTransl) {
+	RBTNodePtr newNodeTransl = this->searchWordNode(word);
+	if (newNodeTransl == nullptr) {
+		insertWord(word);
+	}
+	newNodeTransl = this->searchWordNode(word);
+	insertTranslate(newNodeTransl, newTransl);
 }
 
 void EngRusDict::insertWord(RBTNodePtr newWord) {
@@ -55,6 +62,7 @@ void EngRusDict::insertWord(RBTNodePtr newWord) {
 			this->dict_ = new RedBlackTree< RBTNode >;
 		}
 		this->dict_->insert(*newWord);
+		delete newWord;
 	}
 	catch (std::bad_alloc& e) {
 		std::cerr << "Error " << e.what();
@@ -62,14 +70,32 @@ void EngRusDict::insertWord(RBTNodePtr newWord) {
 	}
 }
 
-void EngRusDict::insertTranslate(const std::string& word, const std::string& newTransl) {
-	RBTNodePtr newNodeTransl = this->searchWordNode(word);
-	if (newNodeTransl != nullptr) {
-		insertTranslate(newNodeTransl, newTransl);
+void EngRusDict::insertManyTrans(RBTNodePtr word, const DoubleList< std::string >& newTransl) {
+	if (word == nullptr) {
+		insertWord(word);
 	}
+	word->insertManyTransl(newTransl);
 }
+
 void EngRusDict::insertTranslate(RBTNodePtr word, std::string newTransl) {
+	if (word == nullptr) {
+		insertWord(word);
+	}
 	word->insertTranslate(newTransl);
+}
+
+void EngRusDict::changeAllTransl(std::string word, const DoubleList< std::string >& newTransl) {
+	if (newTransl.isEmpty()) {
+		return;
+	}
+	RBTNodePtr newNodeTransl = this->searchWordNode(word);
+	changeAllTransl(newNodeTransl, newTransl);
+}
+void EngRusDict::changeAllTransl(RBTNodePtr word, const DoubleList<std::string>& newTransl) {
+	if (word == nullptr) {
+		insertWord(word);
+	}
+	word->changeAllTransl(newTransl);
 }
 
 bool EngRusDict::searchWord(std::string word) {
@@ -78,42 +104,11 @@ bool EngRusDict::searchWord(std::string word) {
 	}
 	return this->dict_->search(word);
 }
-
-RBTNode EngRusDict::getWordNode(std::string word) const {
-	if (this->isEmpty()) {
-		throw std::exception("try get wird from empty dict");
-	}
-	return *(this->searchWordNode(word));
-}
-
-DoubleList<std::string>& EngRusDict::getTranslate(std::string word) const {
-	RBTNodePtr node = searchWordNode(word);
-	if (node == nullptr) {
-		throw std::exception("wrong node.");
-	}
-	return node->getTranslate(word);
-}
-
-Color EngRusDict::getNodeColor(std::string word) const {
-	if (this->isEmpty()) {
-		throw std::exception("empty dict.");
-	}
-	return this->dict_->getNodeColor(word);
-}
-
-size_t EngRusDict::getTranslCount(std::string word) const {
-	RBTNodePtr node = searchWordNode(word);
-	if (node == nullptr) {
-		throw std::exception("wrong node.");
-	}
-	return node->getTranslCount(word);
-}
-
 RBTNode* EngRusDict::searchWordNode(std::string word) const {
 	if (this->isEmpty()) {
 		return nullptr;
 	}
-	return  this->dict_->searchKey(word);
+	return this->dict_->searchKey(word);
 }
 
 void EngRusDict::deleteWord(std::string word) {
@@ -126,15 +121,21 @@ void EngRusDict::deleteWord(std::string word) {
 		this->count_--;
 	}
 }
-
 void EngRusDict::deleteAllTransl(std::string word) {
 	if (this->isEmpty()) {
 		return;
 	}
 	RBTNodePtr delTransl = this->searchWordNode(word);
 	if (delTransl != nullptr) {
-		delTransl->deleteAllTranslate(word);
+		delTransl->deleteAllTranslate();
 	}
+}
+void EngRusDict::deleteTranslate(std::string word, std::string delTrans) {
+	if (this->isEmpty()) {
+		return;
+	}
+	RBTNodePtr delNode = this->searchWordNode(word);
+	delNode->deleteTranslate(delTrans);
 }
 
 void EngRusDict::deleteWord(RBTNodePtr word) {
@@ -146,46 +147,58 @@ void EngRusDict::deleteWord(RBTNodePtr word) {
 		this->clear();
 	}
 }
-
-void EngRusDict::deleteTranslate(std::string word, std::string delTrans) {
-	if (this->isEmpty()) {
+void EngRusDict::deleteTranslate(RBTNodePtr word, std::string delTrans) {
+	if (word == nullptr) {
 		return;
 	}
-	RBTNodePtr delNode = this->searchWordNode(word);
-	if (delNode != nullptr) {
-		deleteTranslate(delNode, delTrans);
-	}
-}
-
-
-void EngRusDict::changeAllTransl(std::string word, const DoubleList<std::string>& newTransl) {
-	RBTNodePtr newNodeTransl = this->searchWordNode(word);
-	if (newNodeTransl != nullptr) {
-		changeAllTransl(newNodeTransl, newTransl);
-	}
-}
-
-void EngRusDict::changeAllTransl(RBTNodePtr word, const DoubleList<std::string>& newTransl) {
-	word->changeAllTransl(newTransl);
-}
-
-void EngRusDict::deleteTranslate(RBTNodePtr word, std::string delTrans) {
 	word->deleteTranslate(delTrans);
 }
 
 bool EngRusDict::isEmpty() const {
 	return (this->dict_ == nullptr);
 }
-
 void EngRusDict::swap(EngRusDict& other) {
 	std::swap(this->dict_, other.dict_);
 	std::swap(this->count_, other.count_);
 }
-
 void EngRusDict::clear() {
 	count_ = 0;
 	delete dict_;
 	dict_ = nullptr;
+}
+void EngRusDict::printRBTree() {
+	this->dict_->print();
+}
+
+RBTNode EngRusDict::getWordNode(std::string word) const {
+	if (this->isEmpty()) {
+		throw std::exception("nothing there");;
+	}
+	return *(this->searchWordNode(word));
+}
+DoubleList< std::string >& EngRusDict::getTranslate(std::string word) const {
+	RBTNodePtr node = searchWordNode(word);
+	if (node == nullptr) {
+		throw std::exception("nothing there");;
+	}
+	return node->getTranslate(word);
+}
+Color EngRusDict::getNodeColor(std::string word) const {
+	if (this->isEmpty()) {
+		throw std::exception("nothing there");;
+	}
+	return this->dict_->getNodeColor(word);
+}
+size_t EngRusDict::getTranslCount(std::string word) const {
+	RBTNodePtr node = searchWordNode(word);
+	if (node == nullptr) {
+		throw std::exception("nothing there");
+	}
+	return node->getTranslCount(word);
+}
+
+size_t EngRusDict::getCountOfWord() const {
+	return this->count_;
 }
 
 std::ostream& operator<<(std::ostream& out, const EngRusDict& tree) {
@@ -198,7 +211,8 @@ std::ostream& operator<<(std::ostream& out, const EngRusDict& tree) {
 		out << "Dictionary is empty.\n";
 	}
 	else {
-		tree.dict_->preorder();
+		std::cout << "Dictionary:\n";
+		tree.dict_->inorder();
 	}
 	return out;
 }

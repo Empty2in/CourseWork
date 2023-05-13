@@ -145,6 +145,10 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="StreamGuard.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="dictionary.txt" />
+    <Text Include="minidict.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -8,37 +8,35 @@ class EngRusDict {
 public:
 	EngRusDict();
 	~EngRusDict();
-	EngRusDict(const EngRusDict& other) = delete;
+	EngRusDict(const EngRusDict& other);
 	EngRusDict(EngRusDict&& other) noexcept;
-	EngRusDict& operator=(const EngRusDict& other) = delete;
+	EngRusDict& operator=(const EngRusDict& other);
 	EngRusDict& operator=(EngRusDict&& other) noexcept;
 
-
 	RBTNode getWordNode(std::string word) const;
-	DoubleList<std::string>& getTranslate(std::string word) const;
+	DoubleList< std::string >& getTranslate(std::string word) const;
 	Color getNodeColor(std::string word) const;
 	size_t getTranslCount(std::string word) const;
-
+	size_t getCountOfWord() const;
 
 	bool searchWord(std::string word);
 
 	void insertWord(const std::string& newWord);
-	void insertManyTrans(const std::string& word, const DoubleList<std::string>& newTransl);
+	void insertManyTrans(const std::string& word, const DoubleList< std::string >& newTransl);
 	void insertTranslate(const std::string& word, const std::string& newTransl);
 
 	void deleteWord(std::string word);
 	void deleteAllTransl(std::string word);
 	void deleteTranslate(std::string word, std::string delTrans);
 
-	void changeAllTransl(std::string word, const DoubleList<std::string>& newTransl);
-
-	friend std::ostream& operator<<(std::ostream& out, const EngRusDict& tree);
+	void changeAllTransl(std::string word, const DoubleList< std::string >& newTransl);
 
 	bool isEmpty() const;
 	void swap(EngRusDict& other);
 	void clear();
-	//EngRusDict copyDict();
-	//void printRBTree();
+	void printRBTree();
+
+	friend std::ostream& operator<<(std::ostream& out, const EngRusDict& tree);
 
 private:
 	RedBlackTree< RBTNode >* dict_;
@@ -47,9 +45,9 @@ private:
 
 	void insertWord(RBTNodePtr newWord);
 	void insertTranslate(RBTNodePtr word, std::string newTransl);
-	void insertManyTrans(RBTNodePtr word, const DoubleList<std::string>& newTransl);
+	void insertManyTrans(RBTNodePtr word, const DoubleList< std::string >& newTransl);
 
-	void changeAllTransl(RBTNodePtr word, const DoubleList<std::string>& newTransl);
+	void changeAllTransl(RBTNodePtr word, const DoubleList< std::string >& newTransl);
 
 	RBTNode* searchWordNode(std::string word) const;
 

@@ -7,7 +7,7 @@
 
 typedef enum { BLACK, RED } Color;
 
-template <class TreeList>
+template < class TreeList >
 class RedBlackTree {
 private:
     struct Node {
@@ -25,11 +25,13 @@ private:
         {}
         Node* clone() { return new Node(*this); }
     };
+   
     typedef Node* NodePtr;
     NodePtr root_;
     NodePtr TNULL;
 
     void deleteUnderTree(NodePtr tree);
+    void transplant(NodePtr befor, NodePtr after);
 
     void preorder(NodePtr node);
     void inorder(NodePtr node);
@@ -37,8 +39,6 @@ private:
 
     void leftRotate(NodePtr x);
     void rightRotate(NodePtr x);
-
-    void transplant(NodePtr befor, NodePtr after);
 
     void deleteNode(NodePtr node, const TreeList& key);
     void deleteFix(NodePtr x);
@@ -49,15 +49,13 @@ private:
     void print(NodePtr root, std::string indent, bool last);
     NodePtr searchNode(NodePtr node, const TreeList& key);
 
-    RedBlackTree<TreeList>* clone();
-    void copy(NodePtr cop);
-    Color getNodeColor(NodePtr node) const;
+    void copy(NodePtr cop, NodePtr tnull);
 
 public:
     RedBlackTree();
     ~RedBlackTree();
-    RedBlackTree(const RedBlackTree<TreeList>& src);
-    RedBlackTree(RedBlackTree<TreeList>&& src) noexcept;
+    RedBlackTree(const RedBlackTree< TreeList >& src);
+    RedBlackTree(RedBlackTree< TreeList >&& src) noexcept;
     RedBlackTree<TreeList>& operator=(const RedBlackTree<TreeList>& src);
     RedBlackTree<TreeList>& operator=(RedBlackTree<TreeList>&& src) noexcept;
 
@@ -68,7 +66,7 @@ public:
     void inorder();
     void postorder();
 
-    NodePtr search(const TreeList& k);
+    bool search(const TreeList& k);
     TreeList* searchKey(const TreeList& key);
 
     NodePtr minimum(NodePtr node);
@@ -83,6 +81,7 @@ public:
     Color getNodeColor(const TreeList& key);
 
     void swap(RedBlackTree<TreeList>& other);
+    RedBlackTree<TreeList>* clone();
 };
 
 template<class TreeList>
@@ -104,31 +103,11 @@ inline RedBlackTree<TreeList>::~RedBlackTree() {
 }
 template<class TreeList>
 inline RedBlackTree<TreeList>::RedBlackTree(const RedBlackTree<TreeList>& src) {
-    if (!isEmpty()) {
-        this->deleteUnderTree(this->root_);
-    }
-    copy(src.root_);
+    this->TNULL = src.TNULL->clone();
+    this->TNULL->color_ = BLACK;
+    this->root_ = TNULL;
+    this->copy(src.root_, src.TNULL);
 }
-template<class TreeList>
-inline void RedBlackTree<TreeList>::copy(NodePtr cop) {
-    if (cop != TNULL) {
-        this->insert(cop);
-        copy(cop->left_);
-        copy(cop->right_);
-    }
-}
-
-template<class TreeList>
-inline Color RedBlackTree<TreeList>::getNodeColor(const TreeList& k) {
-    NodePtr node = searchNode(this->root_, k);
-    return getNodeColor(node);
-}
-
-template<class TreeList>
-inline Color RedBlackTree<TreeList>::getNodeColor(NodePtr node) const {
-    return node->color_;
-}
-
 template<class TreeList>
 inline RedBlackTree<TreeList>::RedBlackTree(RedBlackTree<TreeList>&& src) noexcept {
     this->root_ = src.root_;
@@ -136,6 +115,7 @@ inline RedBlackTree<TreeList>::RedBlackTree(RedBlackTree<TreeList>&& src) noexce
     src.root_ = nullptr;
     src.TNULL = nullptr;
 }
+
 template<class TreeList>
 inline RedBlackTree<TreeList>& RedBlackTree<TreeList>::operator=(const RedBlackTree<TreeList>& src) {
     if (this != &src) {
@@ -151,19 +131,6 @@ inline RedBlackTree<TreeList>& RedBlackTree<TreeList>::operator=(RedBlackTree<Tr
     }
     return *this;
 }
-template<class TreeList>
-void RedBlackTree<TreeList>::deleteUnderTree(NodePtr tree) {
-    if (tree && tree != TNULL) {
-        deleteUnderTree(tree->left_);
-        deleteUnderTree(tree->right_);
-        delete tree;
-    }
-}
-template<class TreeList>
-inline void RedBlackTree<TreeList>::swap(RedBlackTree<TreeList>& other) {
-    std::swap(this->root_, other->root_);
-    std::swap(this->TNULL, other->TNULL);
-}
 
 template<class TreeList>
 void RedBlackTree<TreeList>::preorder(NodePtr node) {
@@ -177,7 +144,7 @@ template<class TreeList>
 void RedBlackTree<TreeList>::inorder(NodePtr node) {
     if (node != TNULL) {
         inorder(node->left_);
-        std::cout << node->key_ << " ";
+        std::cout << node->key_ << '\n';
         inorder(node->right_);
     }
 }
@@ -186,7 +153,7 @@ void RedBlackTree<TreeList>::postorder(NodePtr node) {
     if (node != TNULL) {
         postorder(node->left_);
         postorder(node->right_);
-        std::cout << node->key_ << " ";
+        std::cout << node->key_ << '\n';
     }
 }
 template<class TreeList>
@@ -203,7 +170,7 @@ void RedBlackTree<TreeList>::print(NodePtr root, std::string indent, bool last) 
         }
 
         std::string sColor = root->color_ ? "RED" : "BLACK";
-        std::cout << root->key_ << "(" << sColor << ")" << std::endl;
+        std::cout << "(" << sColor << ") " << root->key_ << std::endl;
         print(root->left_, indent, false);
         print(root->right_, indent, true);
     }
@@ -211,15 +178,22 @@ void RedBlackTree<TreeList>::print(NodePtr root, std::string indent, bool last) 
 
 template<class TreeList>
 inline RedBlackTree<TreeList>* RedBlackTree<TreeList>::clone() {
-    return new RedBlackTree<TreeList>(*this);
+    return (new RedBlackTree<TreeList>(*this));
 }
 
 template<class TreeList>
-RedBlackTree<TreeList>::template NodePtr RedBlackTree<TreeList>::search(const TreeList& k) {
-    return searchNode(this->root_, k);
+bool RedBlackTree<TreeList>::search(const TreeList& k) {
+    NodePtr serchNode = searchNode(this->root_, k);
+    if (serchNode != nullptr && serchNode != TNULL) {
+        return true;
+    }
+    return false;
 }
 template<class TreeList>
 inline TreeList* RedBlackTree<TreeList>::searchKey(const TreeList& key) {
+    if (searchNode(this->root_, key) == TNULL) {
+        return nullptr;
+    }
     return &(searchNode(this->root_, key)->key_);
 }
 template<class TreeList>
@@ -232,6 +206,7 @@ RedBlackTree<TreeList>::template NodePtr RedBlackTree<TreeList>::searchNode(Node
     }
     return searchNode(node->right_, key);
 }
+
 template<class TreeList>
 void RedBlackTree<TreeList>::deleteFix(NodePtr x) {
     Node* s = nullptr;
@@ -508,12 +483,39 @@ void RedBlackTree<TreeList>::rightRotate(NodePtr x) {
 }
 
 template<class TreeList>
+RedBlackTree<TreeList>::template NodePtr RedBlackTree<TreeList>::getRoot() const {
+    return (this->root_);
+}
+template<class TreeList>
+inline Color RedBlackTree<TreeList>::getNodeColor(const TreeList& k) {
+    NodePtr node = searchNode(this->root_, k);
+    return node->color_;
+}
+
+template<class TreeList>
 inline bool RedBlackTree<TreeList>::isEmpty() {
     return (this->root_ == TNULL);
 }
 template<class TreeList>
-RedBlackTree<TreeList>::template NodePtr RedBlackTree<TreeList>::getRoot() const {
-    return (this->root_);
+inline void RedBlackTree<TreeList>::copy(NodePtr cop, NodePtr tnull) {
+    if (cop != tnull) {
+        this->insert(cop->key_);
+        copy(cop->left_, tnull);
+        copy(cop->right_, tnull);
+    }
+}
+template<class TreeList>
+void RedBlackTree<TreeList>::deleteUnderTree(NodePtr tree) {
+    if (tree && tree != TNULL) {
+        deleteUnderTree(tree->left_);
+        deleteUnderTree(tree->right_);
+        delete tree;
+    }
+}
+template<class TreeList>
+inline void RedBlackTree<TreeList>::swap(RedBlackTree<TreeList>& other) {
+    std::swap(this->root_, other->root_);
+    std::swap(this->TNULL, other->TNULL);
 }
 
 template<class TreeList>
@@ -574,7 +576,5 @@ RedBlackTree<TreeList>::template NodePtr RedBlackTree<TreeList>::predecessor(Nod
     }
     return y;
 }
-
-
 
 #endif

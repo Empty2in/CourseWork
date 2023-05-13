@@ -1,22 +1,47 @@
 #include <iostream>
+#include <fstream>
+#include <locale>
+#include <Windows.h>
 #include "EngRusDict.h"
-#include "RedBlackTree.h"
 #include "DoubleList.h"
-#include "RBTNode.h"
 
-DoubleList<std::string> create(std::string str);
-RBTNode createNode(std::string str, std::string trans);
-void checkDoubleList();
-void checkRBTNode();
-void checkRBTreee();
-void checkDictionaryBase();
+void openFile(std::fstream& in, std::string& fileName);
+void readDictFromFail(std::fstream& in, EngRusDict& dictionary);
+bool checkWord(std::string word);
+std::string enterWord(std::istream& in);
 
-void checkDictionaryFichi();
+void mainMenu();
+void actWithDict(EngRusDict& dictionary);
+
+void checkEmptyDictionary();
+void checkFileDict();
+
+void checkException(EngRusDict& dictionary);
+
+void checkInsert(EngRusDict& dictionary);
+void insertManyWords(EngRusDict& dictionary);
+void insertOneWord(EngRusDict& dictionary);
+void insertOneTranslate(EngRusDict& dictionary);
+void insertManyTranslate(EngRusDict& dictionary);
+
+void checkDelete(EngRusDict& dictionary);
+void checkOneWordDelete(EngRusDict& dictionary);
+void checkOneTranslDelete(EngRusDict& dictionary);
+void checkAllTranslDelete(EngRusDict& dictionary);
+
+void checkSearch(EngRusDict& dictionary);
+
+void checkAsRBTree(EngRusDict& dictionary);
+
+void checkOneWord(EngRusDict& dictionary);
+
 
 int main() {
     try {
+        SetConsoleCP(1251);
+        SetConsoleOutputCP(1251);
         setlocale(LC_ALL, "Russian");
-        checkDictionaryFichi();
+        mainMenu();
     }
     catch (std::exception& e) {
         std::cerr << "Error: " << e.what();
@@ -25,277 +50,243 @@ int main() {
     return 0;
 }
 
-DoubleList<std::string> create(std::string str) {
-    DoubleList<std::string> funcList;
-    funcList.insert(str);
-    return funcList;
+void openFile(std::fstream& in, std::string& fileName) {
+    std::cout << "Enter name of file: ";
+    std::cin >> fileName;
+    in.open(fileName);
+    if (!in.is_open()) {
+        throw std::exception("Incorrrect name of file.");
+    }
+    if (in.peek() == EOF) {
+        throw std::exception("file is empty.");
+    }
 }
 
-RBTNode createNode(std::string str, std::string trans) {
-    RBTNode temp(str);
-    temp.insertTranslate(trans);
-    return temp;
+void readDictFromFail(std::fstream& in, EngRusDict& dictionary) {
+    while (!in.eof()) {
+        std::string newWord, newTransl;
+        int countTransl = 0;
+        std::getline(in, newWord);
+        if (!checkWord(newWord)) {
+            throw std::exception("wrong word in file.");
+        }
+        in >> countTransl;
+        if (in.peek() == ',') {
+            throw std::exception("wrong number of translation in file.");
+        }
+        in.ignore(1000, '\n');
+        for (int i = 0; i < countTransl; ++i) {
+            std::getline(in, newTransl);
+            if (!checkWord(newTransl)) {
+                throw std::exception("wrong translation in file.");
+            }
+            dictionary.insertTranslate(newWord, newTransl);
+        }
+        in.ignore(1000, '\n');
+    }
+    in.close();
 }
 
-void checkDictionaryFichi() {
-    EngRusDict test;
-
-    std::string temp = "one";
-    test.insertWord(temp);
-    DoubleList<std::string> list1;
-    list1.insert("раз");
-    list1.insert("один");
-    list1.insert("единственный");
-    list1.insert("первый");
-    list1.insert("одна");
-    test.insertManyTrans(temp, list1);
-    list1.clear();
-
-    temp = "two";
-    test.insertWord(temp);
-    list1.insert("два");
-    list1.insert("двое");
-    list1.insert("пара");
-    list1.insert("второй");
-    list1.insert("две");
-    test.insertManyTrans(temp, list1);
-    list1.clear();
-
-    temp = "three";
-    test.insertWord(temp);
-    list1.insert("три");
-    list1.insert("трое");
-    list1.insert("третий");
-    list1.insert("тро€к");
-    list1.insert("тройбан");
-    test.insertManyTrans(temp, list1);
-    list1.clear();
-
-    temp = "four";
-    test.insertWord(temp);
-    list1.insert("четыре");
-    list1.insert("четвЄртый");
-    list1.insert("четверо");
-    list1.insert("четвертак");
-    list1.insert("четрырн€");
-    test.insertManyTrans(temp, list1);
-    list1.clear();
-
-    temp = "five";
-    test.insertWord(temp);
-    list1.insert("п€ть");
-    list1.insert("п€теро");
-    list1.insert("п€тый");
-    list1.insert("п€тЄрка");
-    list1.insert("п€терн€");
-    test.insertManyTrans(temp, list1);
-    list1.clear();
-
-    temp = "six";
-    test.insertWord(temp);
-    list1.insert("шесть");
-    list1.insert("шестой");
-    list1.insert("шестеро");
-    list1.insert("шестюн€");
-    list1.insert("шестое");
-    test.insertManyTrans(temp, list1);
-    list1.clear();
-
-    std::cout << test << "\n=============================================\n";
-
-    std::cout << test.getTranslate(temp) << "\n=============================================\n";
-
-    std::cout << (test.getNodeColor(temp) ? "RED" : "BLACK") << "\n=============================================\n";
-
-    test.deleteAllTransl(temp);
-    std::cout << test << "\n=============================================\n";
-  
+bool checkWord(std::string word) {
+    for (unsigned char c : word) {
+        if (!static_cast<bool>(std::isalpha(c)) && c != ' ' && c != '-') {
+            return false;
+        }
+    }
+    return true;
 }
 
-void checkDictionaryBase() {
-    EngRusDict test;
-    std::string temp = "first";
-    test.insertWord(temp);
-    std::cout << test << "\n=============================================\n";
-    test.insertWord(temp);
-    std::cout << test << "\n=============================================\n";
 
-    std::string trans = "первый";
-    test.insertTranslate(temp, trans);
-    trans = "перва€";
-    test.insertTranslate(temp, trans);
-    std::cout << test << "\n=============================================\n";
+std::string enterWord(std::istream& in) {
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+    setlocale(LC_ALL, "Russian");
+    std::string word;
+    std::getline(in, word, '\n');
+    if (word == "x") {
+        return word;
+    }
+    if (!checkWord(word)) {
+        throw std::exception("wrong word");
+    }
+    return word;
 
-    temp = "second";
-    test.insertWord(temp);
-    trans = "второй";
-    test.insertTranslate(temp, trans);
-    std::cout << test << "\n=============================================\n";
-
-    temp = "first";
-    test.deleteWord(temp);
-    std::cout << test << "\n=============================================\n";
-
-    temp = "first";
-    test.deleteWord(temp);
-    std::cout << test << "\n=============================================\n";
-
-    temp = "second";
-    trans = "перва€";
-    test.deleteTranslate(temp, trans);
-    std::cout << test << "\n=============================================\n";
 }
 
-void checkRBTNode() {
-    std::cout << "2. Check const&oper RBTNode\n";
-
-    std::string temp = "one";
-
-    std::cout << "Base constructor\n";
-    RBTNode node1(temp);
-    std::cout << "node1: " << node1;
-    temp = "первый";
-    node1.insertTranslate(temp);
-
-    std::cout << "\nCopy constructor\n";
-    RBTNode node2(node1);
-    std::cout << "node1: " << node1;
-    std::cout << "node2: " << node2;
-    std::cout << "\nSome changes\n";
-    temp = "один";
-    node1.insertTranslate(temp);
-    std::cout << "node1: " << node1;
-    std::cout << "node2: " << node2 << '\n';
-    std::cout << "\nSome changes\n";
-    temp = "раз";
-    node2.insertTranslate(temp);
-    std::cout << "node1: " << node1;
-    std::cout << "node2: " << node2;
-
-
-    std::cout << "\nCopy-move constructor\n";
-    temp = "two";
-    std::string trans = "два";
-    RBTNode node3 = createNode(temp, trans);
-    std::cout << "node3: " << node3;
-
-    std::cout << "\nCopy operator\n";
-    std::cout << "Befor\n";
-    std::cout << "node1: " << node1;
-    std::cout << "node3: " << node3;
-    node3 = node1;
-    std::cout << "After\n";
-    std::cout << "node1: " << node1;
-    std::cout << "node3: " << node3;
-    std::cout << "\nSome changes\n";
-    temp = "единственный";
-    node1.insertTranslate(temp);
-    std::cout << "node1: " << node1;
-    std::cout << "node3: " << node3 << '\n';
-    std::cout << "Some changes\n";
-    temp = "три";
-    node3.insertTranslate(temp);
-    std::cout << "node1: " << node1;
-    std::cout << "node3: " << node3;
-
-    std::cout << "\nMove operator\n";
-    temp = "three";
-    trans = "три";
-    node3 = createNode(temp, trans);
-    std::cout << "node3: " << node3;
+void mainMenu() {
+    int com = 0;
+    while (com != 3) {
+        std::cout << "\nEnter the number of which English-Russian Dictionary you need:\n1. Make empty dictionary.\n2. Make dictionary from file.\n3. Exit.\n";
+        std::cin >> com;
+        switch (com) {
+        case 1: checkEmptyDictionary(); continue;
+        case 2: checkFileDict(); continue;
+        case 3: exit(0);
+        default: std::cout << "\nChoose the number from list.\n "; continue;
+        }
+    }
 }
 
-void checkDoubleList() {
-    std::cout << "1. Check constr&oper DoubleList\n";
-
-    std::cout << "Base constructor:\n";
-    std::string temp = "hello";
-    DoubleList<std::string> list1;
-    list1.insert(temp);
-    temp = "newWord";
-    list1.insert(temp);
-    list1.print();
-
-    std::cout << "\nCopy constructor:\n";
-    DoubleList<std::string> list2(list1);
-    std::cout << "list2: ";
-    list2.print();
-    std::cout << "list1: ";
-    list1.print();
-
-    std::cout << "\nSome changes\n";
-    temp = "killmeee";
-    list1.insert(temp);
-    std::cout << "list2: ";
-    list2.print();
-    std::cout << "list1: ";
-    list1.print();
-
-    std::cout << "\nSome chages\n";
-    temp = "tresh";
-    list2.insert(temp);
-    std::cout << "list2: ";
-    list2.print();
-    std::cout << "list1: ";
-    list1.print();
-
-    std::cout << "\nCopy operator:\n";
-    DoubleList<std::string> list3;
-    list3 = list1;
-    std::cout << "list3: ";
-    list3.print();
-    std::cout << "list1: ";
-    list1.print();
-
-    std::cout << "\nSome changes\n";
-    temp = "bla-bla";
-    list1.insert(temp);
-    std::cout << "list3: ";
-    list3.print();
-    std::cout << "list1: ";
-    list1.print();
-
-    std::cout << "\nSome chages\n";
-    temp = "paradis";
-    list3.insert(temp);
-    std::cout << "list3: ";
-    list3.print();
-    std::cout << "list1: ";
-    list1.print();
-
-    std::cout << "\nCopy-move constractor\n";
-    DoubleList<std::string> list4 = create("copy-move");
-    std::cout << "list4: ";
-    list4.print();
-
-    std::cout << "\nMove operator\n";
-    std::cout << "list5: ";
-    list3 = create("goodbay");
-    list3.print();
+void actWithDict(EngRusDict& dictionary) {
+    int com = 0;
+    while (com != 7) {
+        std::cout << "\nEnter the number of action with English-Russian Dictionary:\n1. Check insert\n2. Check Delete.\n3. Check search.\n4. Info about one word.\n5. Print as RBTree.\n6. Check Exception. (WARRNING!!!)\n7. Return in main menu.\n";
+        std::cin >> com;
+        switch (com) {
+        case 1: checkInsert(dictionary); continue;
+        case 2: checkDelete(dictionary); continue;
+        case 3: checkSearch(dictionary); continue;
+        case 4: checkOneWord(dictionary); continue;
+        case 5: checkAsRBTree(dictionary); continue;
+        case 6: checkException(dictionary); continue;
+        case 7: return;
+        default: std::cout << "\nChoose the number from list.\n "; continue;
+        }
+    }
 }
 
-void checkRBTreee() {
-    RedBlackTree<RBTNode> test;
-    std::string temp = "tree";
-    RBTNode word(temp);
-    temp = "дерево";
-    word.insertTranslate(temp);
-    temp = "древо";
-    word.insertTranslate(temp);
-    test.insert(word);
-    test.preorder();
-    std::cout << "\n=========================================\n";
-    temp = "hello";
-    RBTNode word2(temp);
-    temp = "привет";
-    word2.insertTranslate(temp);
-    temp = "здравствуйте";
-    word2.insertTranslate(temp);
-    test.insert(word2);
-    test.preorder();
+void checkEmptyDictionary() {
+    EngRusDict dictionary;
+    std::cout << dictionary;
+    actWithDict(dictionary);
+}
+void checkFileDict() {
+    EngRusDict dictionary;
+    std::fstream in;
+    std::string fileName;
+    openFile(in, fileName);
+    readDictFromFail(in, dictionary);
+    std::cout << dictionary;
+    actWithDict(dictionary);
+}
 
-    std::cout << "\n=========================================\n";
-    RedBlackTree<RBTNode> test2(test);
-    test.preorder();
-    test2.preorder();
+void checkException(EngRusDict& dictionary) {
+    std::cout << "Now you can give me incorrect words, but after this program will be stop work.\n";
+    actWithDict(dictionary);
+}
+
+void checkInsert(EngRusDict& dictionary) {
+    int com = 0;
+    while (com != 5) {
+        std::cout << "\nChoose what you want to insert:\n1. New word (whithout translation)\n2. Many new word.\n3. New translate (just one)\n4. Many new translate.\n5. Return to action menu.\n";
+        std::cin >> com;
+        switch (com) {
+        case 1: insertOneWord(dictionary); continue;
+        case 2: insertManyWords(dictionary); continue;
+        case 3: insertOneTranslate(dictionary); continue;
+        case 4: insertManyTranslate(dictionary); continue;
+        case 5: return;
+        default: std::cout << "\nChoose the number from list.\n "; continue;
+        }
+    }
+}
+void insertOneWord(EngRusDict& dictionary) {
+    std::cout << "\nEnter one english word: ";
+    dictionary.insertWord(enterWord(std::cin));
+    std::cout << dictionary;
+    return;
+}
+void insertManyWords(EngRusDict& dictionary) {
+    std::cout << "Enter english words. When you want to stop - enter 'x'\n";
+    std::string newWord;
+    while (newWord != "x") {
+        newWord = enterWord(std::cin);
+        if (newWord == "x") {
+            break;
+        }
+        dictionary.insertWord(newWord);
+    }
+    std::cout << dictionary;
+    return;
+}
+void insertOneTranslate(EngRusDict& dictionary) {
+    std::cout << "\nEnter word, which translate you want to insert: ";
+    std::string newWord = enterWord(std::cin);
+    std::cout << "Enter russian translate for it : ";
+    std::string newTransl = enterWord(std::cin);
+    dictionary.insertTranslate(newWord, newTransl);
+    std::cout << dictionary;
+    return;
+}
+void insertManyTranslate(EngRusDict& dictionary) {
+    std::cout << "\nEnter word, which translate you want to insert: ";
+    std::string newWord = enterWord(std::cin);
+    std::cout << "Enter russian translates for it. When you want to stop - enter 'x':\n";
+    std::string newTransl;
+    while (newTransl != "x") {
+        newTransl = enterWord(std::cin);
+        if (newTransl == "x") {
+            break;
+        }
+        dictionary.insertTranslate(newWord, newTransl);
+    }
+    std::cout << dictionary;
+    return;
+}
+
+void checkDelete(EngRusDict& dictionary) {
+    int com = 0;
+    while (com != 4) {
+        std::cout << "\nChoose what you want to delete:\n1.One word\n2.One translate.\n3.All translate\n4. Return to action menu\n";
+        std::cin >> com;
+        switch (com) {
+        case 1: checkOneWordDelete(dictionary); continue;
+        case 2: checkOneTranslDelete(dictionary); continue;
+        case 3: checkAllTranslDelete(dictionary); continue;
+        case 4: return;
+        default: std::cout << "\nChoose the number from list.\n "; continue;
+        }
+    }
+    
+}
+void checkOneWordDelete(EngRusDict& dictionary) {
+    std::cout << dictionary;
+    std::cout << "\nEnter one english word in dict, which you want to delete: ";
+    dictionary.deleteWord(enterWord(std::cin));
+    std::cout << dictionary;
+    return;
+}
+void checkOneTranslDelete(EngRusDict& dictionary) {
+    std::cout << dictionary;
+    std::cout << "\nEnter one english word in dict, where you want to delete: ";
+    std::string word = enterWord(std::cin);
+    std::cout << "Enter one translate, which you whant to delete: ";
+    std::string delTransl = enterWord(std::cin);
+    dictionary.deleteTranslate(word, delTransl);
+    std::cout << dictionary;
+    return;
+}
+void checkAllTranslDelete(EngRusDict& dictionary) {
+    std::cout << dictionary;
+    std::cout << "\nEnter one english word in dict, which translate you want to delete: ";
+    dictionary.deleteAllTransl(enterWord(std::cin));
+    std::cout << dictionary;
+    return;
+}
+
+void checkSearch(EngRusDict& dictionary) {
+    std::cout << dictionary;
+    std::cout << "\nEnter one english word in dict, which you want to find: ";
+    std::string word = enterWord(std::cin);
+    std::cout << (dictionary.searchWord(word) ? 
+        "\nThis word is in dictionary\n" : 
+        "\nThis word isn't in dictionary\n");
+    return;
+}
+
+void checkAsRBTree(EngRusDict& dictionary) {
+    dictionary.printRBTree();
+    return;
+}
+
+void checkOneWord(EngRusDict& dictionary) {
+    std::cout << dictionary;
+    std::cout << "\nEnter word, which info you want to learn: ";
+    std::string word = enterWord(std::cin);
+    std::cout << "\nInfo about word '" << word << "' :";
+    std:: cout << "\n\tTranslations: " << dictionary.getTranslate(word);
+    std:: cout << "\n\tCount of translations: " << dictionary.getTranslCount(word);
+    std::cout << "\n\tNode color: " << (dictionary.getNodeColor(word) ? "RED" : "BLACK");
+    std::cout << "\n\tCount of words on dictionary: " << dictionary.getCountOfWord();
+    return;
 }

@@ -63,4 +63,12 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="dictionary.txt">
+      <Filter>Файлы ресурсов</Filter>
+    </Text>
+    <Text Include="minidict.txt">
+      <Filter>Файлы ресурсов</Filter>
+    </Text>
+  </ItemGroup>
 </Project>

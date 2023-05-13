@@ -5,8 +5,7 @@
 #include "DoubleListException.h"
 
 template <class DoubleNode>
-class DoubleList
-{
+class DoubleList {
 private:
 	class Node {
 	public:
@@ -54,7 +53,7 @@ public:
 	size_t size() const;
 
 	void print();
-	bool isEmpty();
+	bool isEmpty() const;
 	void clear();
 	void swap(DoubleList<DoubleNode>& other) noexcept;
 	DoubleList<DoubleNode>* clone();
@@ -74,12 +73,10 @@ inline DoubleList<DoubleNode>::DoubleList() :
 	tail_(nullptr),
 	size_(0)
 {};
-
 template<class DoubleNode>
 inline DoubleList<DoubleNode>::~DoubleList() {
 	this->clear();
 }
-
 template<class DoubleNode>
 inline DoubleList<DoubleNode>::DoubleList(const DoubleList<DoubleNode>& other) {
 	if (!isEmpty()) {
@@ -91,7 +88,6 @@ inline DoubleList<DoubleNode>::DoubleList(const DoubleList<DoubleNode>& other) {
 		temp = temp->next_;
 	}
 }
-
 template<class DoubleNode>
 inline DoubleList<DoubleNode>::DoubleList(DoubleList<DoubleNode>&& other) noexcept {
 	this->head_ = other.head_;
@@ -112,7 +108,6 @@ inline DoubleList<DoubleNode>& DoubleList<DoubleNode>::operator=(const DoubleLis
 	return *this->clone();
 
 }
-
 template<class DoubleNode>
 inline DoubleList<DoubleNode>& DoubleList<DoubleNode>::operator=(DoubleList<DoubleNode>&& other) noexcept {
 	if (this != &other) {
@@ -125,22 +120,19 @@ template<class DoubleNode>
 inline DoubleNode DoubleList<DoubleNode>::front() const {
 	return this->head_->key_;
 }
-
 template<class DoubleNode>
 inline DoubleNode DoubleList<DoubleNode>::back() const {
 	return this->tail_->key_;
 }
-
 template<class DoubleNode>
 inline size_t DoubleList<DoubleNode>::size() const {
 	return this->size_;
 }
-
 template<class DoubleNode>
+
 inline void DoubleList<DoubleNode>::print() {
 	this->printList();
 }
-
 template<class DoubleNode>
 inline void DoubleList<DoubleNode>::printList() {
 	if (isEmpty()) {
@@ -157,11 +149,6 @@ inline void DoubleList<DoubleNode>::printList() {
 }
 
 template<class DoubleNode>
-inline bool DoubleList<DoubleNode>::isEmpty() {
-	return (head_ == nullptr && tail_ == nullptr);
-}
-
-template<class DoubleNode>
 inline void DoubleList<DoubleNode>::insert(const DoubleNode& key) {
 	try {
 		NodePtr newNode = new Node(key);
@@ -172,7 +159,6 @@ inline void DoubleList<DoubleNode>::insert(const DoubleNode& key) {
 		exit(-1);
 	}
 }
-
 template<class DoubleNode>
 inline void DoubleList<DoubleNode>::insertNode(NodePtr newNode) {
 	if (newNode == nullptr) {
@@ -206,7 +192,6 @@ inline void DoubleList<DoubleNode>::insertNode(NodePtr newNode) {
 		}
 	}
 }
-
 template<class DoubleNode>
 inline void DoubleList<DoubleNode>::insertHead(NodePtr newNode) {
 	if (newNode == nullptr) {
@@ -222,7 +207,6 @@ inline void DoubleList<DoubleNode>::insertHead(NodePtr newNode) {
 		this->size_++;
 	}
 }
-
 template<class DoubleNode>
 inline void DoubleList<DoubleNode>::insertTail(NodePtr newNode) {
 	if (newNode == nullptr) {
@@ -238,7 +222,6 @@ inline void DoubleList<DoubleNode>::insertTail(NodePtr newNode) {
 		this->size_++;
 	}
 }
-
 template<class DoubleNode>
 inline void DoubleList<DoubleNode>::insertEmpty(NodePtr newNode) {
 	this->head_ = newNode;
@@ -253,12 +236,10 @@ inline void DoubleList<DoubleNode>::deleteKey(const DoubleNode& key) {
 		deleteNode(delNode);
 	}
 }
-
 template<class DoubleNode>
 inline void DoubleList<DoubleNode>::deleteTail() {
 	deleteTailNode();
 }
-
 template<class DoubleNode>
 inline void DoubleList<DoubleNode>::deleteHead() {
 	deleteHeadNode();
@@ -287,7 +268,6 @@ inline void DoubleList<DoubleNode>::deleteNode(NodePtr delNode) {
 		}
 	}
 }
-
 template<class DoubleNode>
 inline void DoubleList<DoubleNode>::deleteTailNode() {
 	if (isEmpty()) {
@@ -310,7 +290,6 @@ inline void DoubleList<DoubleNode>::deleteTailNode() {
 		delete temp;
 	}
 }
-
 template<class DoubleNode>
 inline void DoubleList<DoubleNode>::deleteHeadNode() {
 	if (isEmpty()) {
@@ -338,7 +317,6 @@ template<class DoubleNode>
 inline bool DoubleList<DoubleNode>::searchKey(const DoubleNode& key) {
 	return this->searchNode(key);
 }
-
 template<class DoubleNode>
 inline DoubleList<DoubleNode>::template NodePtr DoubleList<DoubleNode>::searchNode(const DoubleNode& key) {
 	if (isEmpty()) {
@@ -356,18 +334,19 @@ inline DoubleList<DoubleNode>::template NodePtr DoubleList<DoubleNode>::searchNo
 }
 
 template<class DoubleNode>
+inline bool DoubleList<DoubleNode>::isEmpty() const {
+	return (head_ == nullptr && tail_ == nullptr);
+}
+template<class DoubleNode>
 inline void DoubleList<DoubleNode>::swap(DoubleList<DoubleNode>& other) noexcept {
 	std::swap(this->head_, other.head_);
 	std::swap(this->tail_, other.tail_);
 	std::swap(this->size_, other.size_);
 }
-
 template<class DoubleNode>
-inline DoubleList<DoubleNode>* DoubleList<DoubleNode>::clone()
-{
+inline DoubleList<DoubleNode>* DoubleList<DoubleNode>::clone() {
 	return new DoubleList<DoubleNode>(*this);
 }
-
 template<class DoubleNode>
 inline void DoubleList<DoubleNode>::clear() {
 	while (!isEmpty()) {

@@ -18,22 +18,17 @@ public:
 	void swap(RBTNode& other);
 	RBTNode* clone();
 
-	DoubleList<std::string>& getTranslate(const std::string& trans) const;
+	DoubleList< std::string >& getTranslate(const std::string& trans) const;
 	size_t getTranslCount(const std::string& word) const;
 
 	void insertWord(const std::string& word);
-	void insertManyTransl(const DoubleList<std::string>& trans);
+	void insertManyTransl(const DoubleList< std::string >& trans);
 	void insertTranslate(const std::string& trans);
 
-	void changeAllTransl(const DoubleList<std::string>& trans);
+	void changeAllTransl(const DoubleList< std::string >& trans);
 
 	void deleteTranslate(const std::string& trans);
-	void deleteAllTranslate(const std::string& trans);
-
-	/*bool operator<(const RBTNode& other);
-	bool operator>(const RBTNode& other);
-	bool operator==(const RBTNode& other);
-	bool operator!=(const RBTNode& other);*/
+	void deleteAllTranslate();
 
 	friend bool operator<(const RBTNode& curr, const RBTNode& other);
 	friend bool operator>(const RBTNode& curr, const RBTNode& other);
@@ -43,8 +38,10 @@ public:
 	friend std::ostream& operator<<(std::ostream& out, const RBTNode& node);
 
 private:
+	void absDeleteTransl();
+
 	std::string word_;
-	DoubleList<std::string>* transl_;
+	DoubleList< std::string >* transl_;
 };
 
 #endif
