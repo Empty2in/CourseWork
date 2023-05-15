@@ -6,10 +6,9 @@
 
 class RBTNode {
 public:
-	RBTNode();
-	RBTNode(std::string word);
-	RBTNode(std::string word, DoubleList<std::string> trans);
-	~RBTNode();
+	
+	RBTNode(std::string word = std::string(), DoubleList< std::string > trans = DoubleList< std::string >());
+	~RBTNode() = default;
 	RBTNode(const RBTNode& other);
 	RBTNode(RBTNode&& other) noexcept;
 	RBTNode& operator=(const RBTNode& other);
@@ -18,7 +17,7 @@ public:
 	void swap(RBTNode& other);
 	RBTNode* clone();
 
-	DoubleList< std::string >& getTranslate(const std::string& trans) const;
+	DoubleList< std::string > getTranslate(const std::string& trans);
 	size_t getTranslCount(const std::string& word) const;
 
 	void insertWord(const std::string& word);
@@ -38,10 +37,9 @@ public:
 	friend std::ostream& operator<<(std::ostream& out, const RBTNode& node);
 
 private:
-	void absDeleteTransl();
 
 	std::string word_;
-	DoubleList< std::string >* transl_;
+	DoubleList< std::string > transl_;
 };
 
 #endif

@@ -7,11 +7,6 @@ std::ostream& operator<<(std::ostream& out, const DoubleList< std::string >& nod
 		return out;
 	}
 	StreamGuard stream(out);
-	DoubleList<std::string>::NodePtr temp = node.head_;
-	while (temp != nullptr && temp != node.tail_) {
-		std::cout << temp->key_ << ", ";
-		temp = temp->next_;
-	}
-	std::cout << node.tail_->key_;
+	node.print(out);
 	return out;
 }

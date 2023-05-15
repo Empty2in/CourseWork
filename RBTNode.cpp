@@ -1,42 +1,21 @@
 #include "RBTNode.h"
 #include "StreamGuard.h"
+#include <iomanip>
 
-RBTNode::RBTNode() :
-	word_(""),
-	transl_(nullptr)
-{}
-RBTNode::RBTNode(std::string word) :
-	word_(word), 
-	transl_(nullptr) 
-{}
 RBTNode::RBTNode(std::string word, DoubleList< std::string > trans) {
-	try {
-		word_ = word;
-		transl_ = new DoubleList< std::string >(trans);
-	}
-	catch (std::bad_alloc& e) {
-		std::cerr << "Error " << e.what();
-		exit(-1);
-	}
-}
-RBTNode::~RBTNode() {
-	delete transl_;
+	word_ = word;
+	transl_ = trans;
 }
 
 RBTNode::RBTNode(const RBTNode& other) {
 	word_ = other.word_;
-	if (other.transl_ != nullptr) {
-		transl_ = other.transl_->clone();
-	}
-	else {
-		transl_ = nullptr;
-	}
+	transl_ = other.transl_;
 }
 RBTNode::RBTNode(RBTNode && other) noexcept {
 	word_ = other.word_;
 	transl_ = other.transl_;
 	other.word_ = "";
-	other.transl_ = nullptr;
+	other.transl_.clear();
 }
 RBTNode& RBTNode::operator=(const RBTNode& other){
 	if (this != &other) {
@@ -52,68 +31,39 @@ RBTNode& RBTNode::operator=(RBTNode&& other) noexcept {
 	return *this;
 }
 
-DoubleList<std::string>& RBTNode::getTranslate(const std::string& trans) const {
-	return (*this->transl_);
+DoubleList<std::string> RBTNode::getTranslate(const std::string& trans) {
+	DoubleList<std::string> translete = this->transl_;
+	return translete;
 }
 size_t RBTNode::getTranslCount(const std::string& word) const {
-	return (this->transl_->size());
+	return (this->transl_.size());
 }
 
 void RBTNode::insertWord(const std::string& word) {
 	this->word_ = word;
 }
 void RBTNode::insertManyTransl(const DoubleList<std::string>& trans) {
-	try {
-		if (transl_ != nullptr) {
-			return;
-		}
-		transl_ = new DoubleList<std::string>(trans);
+	if (!transl_.isEmpty()) {
+		return;
 	}
-	catch (std::bad_alloc& e) {
-		std::cerr << "Error " << e.what();
-		exit(-1);
-	}
+	transl_ = trans;
 }
 void RBTNode::insertTranslate(const std::string& trans) {
-	try {
-		if (this->transl_ == nullptr) {
-			transl_ = new DoubleList<std::string>;
-		}
-		this->transl_->insert(trans);
-	}
-	catch (std::bad_alloc& e) {
-		std::cerr << "Error " << e.what();
-		exit(-1);
-	}
+	transl_.insert(trans);
 }
 
 void RBTNode::changeAllTransl(const DoubleList<std::string>& trans) {
-	try {
-		if (transl_ != nullptr) {
-			absDeleteTransl();
-		}
-		transl_ = new DoubleList<std::string>(trans);
-	}
-	catch (std::bad_alloc& e) {
-		std::cerr << "Error " << e.what();
-		exit(-1);
-	}
+	transl_ = trans;
 }
 
 void RBTNode::deleteTranslate(const std::string& trans) {
-	if (this->transl_ == nullptr || this->transl_->isEmpty()) {
+	if (transl_.isEmpty()) {
 		return;
 	}
-	this->transl_->deleteKey(trans);
-	if (this->transl_->isEmpty()) {
-		absDeleteTransl();
-	}
+	transl_.deleteKey(trans);
 }
 void RBTNode::deleteAllTranslate() {
-	if (this->transl_ == nullptr || this->transl_->isEmpty()) {
-		return;
-	}
-	absDeleteTransl();
+	transl_.clear();
 }
 
 RBTNode* RBTNode::clone() {
@@ -122,10 +72,6 @@ RBTNode* RBTNode::clone() {
 void RBTNode::swap(RBTNode& other) {
 	std::swap(this->word_, other.word_);
 	std::swap(this->transl_, other.transl_);
-}
-void RBTNode::absDeleteTransl() {
-	delete this->transl_;
-	this->transl_ = nullptr;
 }
 
 bool operator<(const RBTNode& curr, const RBTNode& other) {
@@ -147,9 +93,9 @@ std::ostream& operator<<(std::ostream& out, const RBTNode& node) {
 		return out;
 	}
 	StreamGuard stream(out);
-	out << '\t' << node.word_;
-	if (node.transl_ != nullptr) {
-		std::cout << " - " << *(node.transl_);
+	out << '\t' << std::setw(20) << std::left << node.word_;
+	if (!node.transl_.isEmpty()) {
+		out << node.transl_;
 	}
 	return out;
 }

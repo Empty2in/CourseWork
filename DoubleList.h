@@ -35,7 +35,7 @@ private:
 
 	NodePtr searchNode(const DoubleNode& key);
 
-	void printList();
+	void printList(std::ostream& out) const;
 
 	friend std::ostream& operator<<(std::ostream& out, const DoubleList<std::string>& node);
 
@@ -52,7 +52,7 @@ public:
 	DoubleNode back() const;
 	size_t size() const;
 
-	void print();
+	void print(std::ostream& out) const;
 	bool isEmpty() const;
 	void clear();
 	void swap(DoubleList<DoubleNode>& other) noexcept;
@@ -130,21 +130,20 @@ inline size_t DoubleList<DoubleNode>::size() const {
 }
 template<class DoubleNode>
 
-inline void DoubleList<DoubleNode>::print() {
-	this->printList();
+inline void DoubleList<DoubleNode>::print(std::ostream& out) const {
+	this->printList(out);
 }
 template<class DoubleNode>
-inline void DoubleList<DoubleNode>::printList() {
+inline void DoubleList<DoubleNode>::printList(std::ostream& out) const{
 	if (isEmpty()) {
 		return;
 	}
 	else {
 		NodePtr temp = this->head_;
 		while (temp != nullptr) {
-			std::cout << temp->key_ << " ";
+			out << temp->key_ << "; ";
 			temp = temp->next_;
 		}
-		std::cout << '\n';
 	}
 }
 

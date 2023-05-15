@@ -36,6 +36,15 @@
     <ClInclude Include="EngRusDict.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="Phrases.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="InputException.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="TestFunc.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RedBlackTree.cpp">
@@ -62,12 +71,27 @@
     <ClCompile Include="EngRusDict.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="InputException.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="TestFunc.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="dictionary.txt">
       <Filter>Файлы ресурсов</Filter>
     </Text>
     <Text Include="minidict.txt">
+      <Filter>Файлы ресурсов</Filter>
+    </Text>
+    <Text Include="minidict1.txt">
+      <Filter>Файлы ресурсов</Filter>
+    </Text>
+    <Text Include="minidict2.txt">
+      <Filter>Файлы ресурсов</Filter>
+    </Text>
+    <Text Include="newDict.txt">
       <Filter>Файлы ресурсов</Filter>
     </Text>
   </ItemGroup>

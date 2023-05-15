@@ -33,9 +33,9 @@ private:
     void deleteUnderTree(NodePtr tree);
     void transplant(NodePtr befor, NodePtr after);
 
-    void preorder(NodePtr node);
-    void inorder(NodePtr node);
-    void postorder(NodePtr node);
+    void preorder(NodePtr node, std::ostream& out) const;
+    void inorder(NodePtr node, std::ostream& out) const;
+    void postorder(NodePtr node, std::ostream& out) const;
 
     void leftRotate(NodePtr x);
     void rightRotate(NodePtr x);
@@ -46,7 +46,7 @@ private:
     void insert(NodePtr newNode);
     void insertFix(NodePtr k);
 
-    void print(NodePtr root, std::string indent, bool last);
+    void print(std::ostream& out, NodePtr root, std::string indent, bool last) const;
     NodePtr searchNode(NodePtr node, const TreeList& key);
 
     void copy(NodePtr cop, NodePtr tnull);
@@ -59,12 +59,13 @@ public:
     RedBlackTree<TreeList>& operator=(const RedBlackTree<TreeList>& src);
     RedBlackTree<TreeList>& operator=(RedBlackTree<TreeList>&& src) noexcept;
 
-    bool isEmpty();
+    bool isEmpty() const;
     NodePtr getRoot() const;
 
-    void preorder();
-    void inorder();
-    void postorder();
+    void print(std::ostream& out) const;
+    void preorder(std::ostream& out) const;
+    void inorder(std::ostream& out) const;
+    void postorder(std::ostream& out) const;
 
     bool search(const TreeList& k);
     TreeList* searchKey(const TreeList& key);
@@ -77,7 +78,7 @@ public:
     void insert(const TreeList& key);
     void deleteNode(const TreeList& data);
 
-    void print();
+    void clear();
     Color getNodeColor(const TreeList& key);
 
     void swap(RedBlackTree<TreeList>& other);
@@ -98,7 +99,7 @@ inline RedBlackTree<TreeList>::RedBlackTree() {
 }
 template<class TreeList>
 inline RedBlackTree<TreeList>::~RedBlackTree() {
-    deleteUnderTree(this->root_);
+    this->clear();
     delete TNULL;
 }
 template<class TreeList>
@@ -133,7 +134,7 @@ inline RedBlackTree<TreeList>& RedBlackTree<TreeList>::operator=(RedBlackTree<Tr
 }
 
 template<class TreeList>
-void RedBlackTree<TreeList>::preorder(NodePtr node) {
+void RedBlackTree<TreeList>::preorder(NodePtr node, std::ostream& out) const {
     if (node != TNULL) {
         std::cout << node->key_ << '\n';
         preorder(node->left_);
@@ -141,15 +142,15 @@ void RedBlackTree<TreeList>::preorder(NodePtr node) {
     }
 }
 template<class TreeList>
-void RedBlackTree<TreeList>::inorder(NodePtr node) {
+void RedBlackTree<TreeList>::inorder(NodePtr node, std::ostream& out) const {
     if (node != TNULL) {
-        inorder(node->left_);
-        std::cout << node->key_ << '\n';
-        inorder(node->right_);
+        inorder(node->left_, out);
+        out << node->key_ << '\n';
+        inorder(node->right_, out);
     }
 }
 template<class TreeList>
-void RedBlackTree<TreeList>::postorder(NodePtr node) {
+void RedBlackTree<TreeList>::postorder(NodePtr node, std::ostream& out) const {
     if (node != TNULL) {
         postorder(node->left_);
         postorder(node->right_);
@@ -157,22 +158,22 @@ void RedBlackTree<TreeList>::postorder(NodePtr node) {
     }
 }
 template<class TreeList>
-void RedBlackTree<TreeList>::print(NodePtr root, std::string indent, bool last) {
+void RedBlackTree<TreeList>::print(std::ostream& out, NodePtr root, std::string indent, bool last) const {
     if (root != TNULL) {
-        std::cout << indent;
+        out << indent;
         if (last) {
-            std::cout << "R----";
+            out << "R----";
             indent += "   ";
         }
         else {
-            std::cout << "L----";
+            out << "L----";
             indent += "|  ";
         }
 
         std::string sColor = root->color_ ? "RED" : "BLACK";
-        std::cout << "(" << sColor << ") " << root->key_ << std::endl;
-        print(root->left_, indent, false);
-        print(root->right_, indent, true);
+        out << "(" << sColor << ") " << root->key_ << '\n';
+        print(out, root->left_, indent, false);
+        print(out, root->right_, indent, true);
     }
 }
 
@@ -191,10 +192,11 @@ bool RedBlackTree<TreeList>::search(const TreeList& k) {
 }
 template<class TreeList>
 inline TreeList* RedBlackTree<TreeList>::searchKey(const TreeList& key) {
-    if (searchNode(this->root_, key) == TNULL) {
+    NodePtr node = searchNode(this->root_, key);
+    if (node == TNULL) {
         return nullptr;
     }
-    return &(searchNode(this->root_, key)->key_);
+    return &node->key_;
 }
 template<class TreeList>
 RedBlackTree<TreeList>::template NodePtr RedBlackTree<TreeList>::searchNode(NodePtr node, const TreeList& key) {
@@ -493,7 +495,7 @@ inline Color RedBlackTree<TreeList>::getNodeColor(const TreeList& k) {
 }
 
 template<class TreeList>
-inline bool RedBlackTree<TreeList>::isEmpty() {
+inline bool RedBlackTree<TreeList>::isEmpty() const {
     return (this->root_ == TNULL);
 }
 template<class TreeList>
@@ -514,27 +516,32 @@ void RedBlackTree<TreeList>::deleteUnderTree(NodePtr tree) {
 }
 template<class TreeList>
 inline void RedBlackTree<TreeList>::swap(RedBlackTree<TreeList>& other) {
-    std::swap(this->root_, other->root_);
-    std::swap(this->TNULL, other->TNULL);
+    std::swap(this->root_, other.root_);
+    std::swap(this->TNULL, other.TNULL);
+}
+template<class TreeList>
+inline void RedBlackTree<TreeList>::clear() {
+    deleteUnderTree(this->root_);
 }
 
+
 template<class TreeList>
-void RedBlackTree<TreeList>::print() {
+void RedBlackTree<TreeList>::print(std::ostream& out) const {
     if (!isEmpty()) {
-        print(this->root_, "", true);
+        print(out, this->root_, "", true);
     }
 }
 template<class TreeList>
-void RedBlackTree<TreeList>::preorder() {
-    preorder(this->root_);
+void RedBlackTree<TreeList>::preorder(std::ostream& out) const {
+    preorder(this->root_, out);
 }
 template<class TreeList>
-void RedBlackTree<TreeList>::inorder() {
-    inorder(this->root_);
+void RedBlackTree<TreeList>::inorder(std::ostream& out) const {
+    inorder(this->root_, out);
 }
 template<class TreeList>
-void RedBlackTree<TreeList>::postorder() {
-    postorder(this->root_);
+void RedBlackTree<TreeList>::postorder(std::ostream& out) const {
+    postorder(this->root_, out);
 }
 
 template<class TreeList>

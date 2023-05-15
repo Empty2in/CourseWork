@@ -130,24 +130,32 @@
     <ClInclude Include="DoubleList.h" />
     <ClInclude Include="DoubleListException.h" />
     <ClInclude Include="EngRusDict.h" />
+    <ClInclude Include="InputException.h" />
+    <ClInclude Include="Phrases.h" />
     <ClInclude Include="RBTException.h" />
     <ClInclude Include="RBTNode.h" />
     <ClInclude Include="RedBlackTree.h" />
     <ClInclude Include="StreamGuard.h" />
+    <ClInclude Include="TestFunc.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DoubleList.cpp" />
     <ClCompile Include="DoubleListException.cpp" />
     <ClCompile Include="EngRusDict.cpp" />
+    <ClCompile Include="InputException.cpp" />
     <ClCompile Include="RBTException.cpp" />
     <ClCompile Include="RBTNode.cpp" />
     <ClCompile Include="RedBlackTree.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="StreamGuard.cpp" />
+    <ClCompile Include="TestFunc.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="dictionary.txt" />
     <Text Include="minidict.txt" />
+    <Text Include="minidict1.txt" />
+    <Text Include="minidict2.txt" />
+    <Text Include="newDict.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
