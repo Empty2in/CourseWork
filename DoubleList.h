@@ -65,6 +65,8 @@ public:
 	void deleteKey(const DoubleNode& key);
 
 	bool searchKey(const DoubleNode& key);
+
+	void merge(DoubleList<DoubleNode>& other);
 };
 
 template<class DoubleNode>
@@ -330,6 +332,15 @@ inline DoubleList<DoubleNode>::template NodePtr DoubleList<DoubleNode>::searchNo
 		temp = temp->next_;
 	}
 	return temp;
+}
+
+
+template<class DoubleNode>
+inline void DoubleList<DoubleNode>::merge(DoubleList<DoubleNode>& other) {
+	while (!other.isEmpty()) {
+		this->insert(other.back());
+		other.deleteTail();
+	}
 }
 
 template<class DoubleNode>

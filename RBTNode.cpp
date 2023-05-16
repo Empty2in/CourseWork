@@ -43,10 +43,12 @@ void RBTNode::insertWord(const std::string& word) {
 	this->word_ = word;
 }
 void RBTNode::insertManyTransl(const DoubleList<std::string>& trans) {
-	if (!transl_.isEmpty()) {
+	if (transl_.isEmpty()) {
+		transl_ = trans;
 		return;
 	}
-	transl_ = trans;
+	DoubleList<std::string> temp(trans);
+	transl_.merge(temp);
 }
 void RBTNode::insertTranslate(const std::string& trans) {
 	transl_.insert(trans);
