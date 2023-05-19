@@ -40,6 +40,8 @@ private:
 
 	std::string word_;
 	DoubleList< std::string > transl_;
+
+	std::string toLowerStr() const;
 };
 
 #endif

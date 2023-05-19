@@ -98,32 +98,33 @@ void enterWord(std::istream& in, std::string& word) {
 }
 
 void mainMenu() {
-    int com = 1;
+    char com = ' ';
     while (com) {
         std::cout << mainMenuPhrase;
         std::cin >> com;
         switch (com) {
-        case 1: checkEmptyDictionary(); continue;
-        case 2: checkFileDict(); continue;
-        case 3: exit(0);
-        default: std::cout << defaultPhrase; continue;
+        case '1': checkEmptyDictionary(); break;
+        case '2': checkFileDict(); break;
+        case '3': exit(0);
+        default: 
+            std::cout << defaultPhrase; break;
         }
     }
 }
 void actWithDict(EngRusDict& dictionary) {
-    int com = 1;
+    char com = ' ';
     while (com) {
         std::cout << actWithDictPhrase;
         std::cin >> com;
         switch (com) {
-        case 1: checkInsert(dictionary); continue;
-        case 2: checkDelete(dictionary); continue;
-        case 3: checkSearch(dictionary); continue;
-        case 4: checkOneWord(dictionary); continue;
-        case 5: checkAsRBTree(dictionary); continue;
-        case 6: writeToFile(dictionary); continue;
-        case 7: return;
-        default: std::cout << defaultPhrase; continue;
+        case '1': checkInsert(dictionary); break;
+        case '2': checkDelete(dictionary); break;
+        case '3': checkSearch(dictionary); break;
+        case '4': checkOneWord(dictionary); break;
+        case '5': checkAsRBTree(dictionary); break;
+        case '6': writeToFile(dictionary); break;
+        case '7': return;
+        default: std::cout << defaultPhrase; break;
         }
     }
 }
@@ -141,18 +142,18 @@ void checkFileDict() {
 }
 
 void checkInsert(EngRusDict& dictionary) {
-    int com = 1;
+    char com = ' ';;
     while (com) {
         std::cout << checkInsertPhrase;
         std::cin >> com;
         switch (com) {
-        case 1: insertOneWord(dictionary); continue;
-        case 2: insertManyWords(dictionary); continue;
-        case 3: insertOneTranslate(dictionary); continue;
-        case 4: insertManyTranslate(dictionary); continue;
-        case 5: changeTranslate(dictionary); continue;
-        case 6: return;
-        default: std::cout << defaultPhrase; continue;
+        case '1': insertOneWord(dictionary); break;
+        case '2': insertManyWords(dictionary); break;
+        case '3': insertOneTranslate(dictionary); break;
+        case '4': insertManyTranslate(dictionary); break;
+        case '5': changeTranslate(dictionary); break;
+        case '6': return;
+        default: std::cout << defaultPhrase; break;
         }
     }
 }
@@ -200,16 +201,16 @@ void changeTranslate(EngRusDict& dictionary) {
 }
 
 void checkDelete(EngRusDict& dictionary) {
-    int com = 1;
+    char com = ' ';;
     while (com) {
         std::cout << checkDeletePhrase;
         std::cin >> com;
         switch (com) {
-        case 1: checkOneWordDelete(dictionary); continue;
-        case 2: checkOneTranslDelete(dictionary); continue;
-        case 3: checkAllTranslDelete(dictionary); continue;
-        case 4: return;
-        default: std::cout << defaultPhrase; continue;
+        case '1': checkOneWordDelete(dictionary); break;
+        case '2': checkOneTranslDelete(dictionary); break;
+        case '3': checkAllTranslDelete(dictionary); break;
+        case '4': return;
+        default: std::cout << defaultPhrase; break;
         }
     }
 }
@@ -252,6 +253,10 @@ void checkOneWord(EngRusDict& dictionary) {
     std::string word = helpIO(infoWord, true);
 
     std::cout << "\nInfo about word '" << word << "' :";
+    if (!dictionary.searchWord(word)) {
+        std::cout << "\n\tThere is no such word in dictionary!";
+        return;
+    }
     std::cout << "\n\tTranslations: " << dictionary.getTranslate(word);
     std::cout << "\n\tCount of translations: " << dictionary.getTranslCount(word);
     std::cout << "\n\tNode color: " << (dictionary.getNodeColor(word) ? "RED" : "BLACK");

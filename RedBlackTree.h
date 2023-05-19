@@ -137,8 +137,8 @@ template<class TreeList>
 void RedBlackTree<TreeList>::preorder(NodePtr node, std::ostream& out) const {
     if (node != TNULL) {
         std::cout << node->key_ << '\n';
-        preorder(node->left_);
-        preorder(node->right_);
+        preorder(node->left_, out);
+        preorder(node->right_, out);
     }
 }
 template<class TreeList>
@@ -152,8 +152,8 @@ void RedBlackTree<TreeList>::inorder(NodePtr node, std::ostream& out) const {
 template<class TreeList>
 void RedBlackTree<TreeList>::postorder(NodePtr node, std::ostream& out) const {
     if (node != TNULL) {
-        postorder(node->left_);
-        postorder(node->right_);
+        postorder(node->left_, out);
+        postorder(node->right_, out);
         std::cout << node->key_ << '\n';
     }
 }

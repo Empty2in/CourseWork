@@ -1,6 +1,7 @@
 #include "RBTNode.h"
 #include "StreamGuard.h"
 #include <iomanip>
+#include <algorithm>
 
 RBTNode::RBTNode(std::string word, DoubleList< std::string > trans) {
 	word_ = word;
@@ -77,10 +78,10 @@ void RBTNode::swap(RBTNode& other) {
 }
 
 bool operator<(const RBTNode& curr, const RBTNode& other) {
-	return (curr.word_ < other.word_);
+	return (curr.toLowerStr() < other.toLowerStr());
 }
 bool operator>(const RBTNode& curr, const RBTNode& other) {
-	return (curr.word_ > other.word_);
+	return (curr.toLowerStr() > other.toLowerStr());
 }
 bool operator==(const RBTNode& curr, const RBTNode& other) {
 	return (curr.word_ == other.word_);
@@ -100,4 +101,16 @@ std::ostream& operator<<(std::ostream& out, const RBTNode& node) {
 		out << node.transl_;
 	}
 	return out;
+}
+
+std::string RBTNode::toLowerStr() const {
+	std::string loWord = this->word_;
+	std::transform(
+		word_.begin(),
+		word_.end(),
+		loWord.begin(),
+		[](char c)
+		{ return std::tolower(c); }
+	);
+	return loWord;
 }

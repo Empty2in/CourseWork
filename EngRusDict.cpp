@@ -146,7 +146,7 @@ Color EngRusDict::getNodeColor(std::string word) {
 size_t EngRusDict::getTranslCount(std::string word) {
 	RBTNodePtr node = searchWordNode(word);
 	if (node == nullptr) {
-		throw std::exception("nothing there");
+		return 0;
 	}
 	return node->getTranslCount(word);
 }

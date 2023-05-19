@@ -107,7 +107,7 @@ inline DoubleList<DoubleNode>& DoubleList<DoubleNode>::operator=(const DoubleLis
 		DoubleList<DoubleNode> temp(other);
 		swap(temp);
 	}
-	return *this->clone();
+	return *this;
 
 }
 template<class DoubleNode>
