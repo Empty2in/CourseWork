@@ -334,7 +334,6 @@ inline DoubleList<DoubleNode>::template NodePtr DoubleList<DoubleNode>::searchNo
 	return temp;
 }
 
-
 template<class DoubleNode>
 inline void DoubleList<DoubleNode>::merge(DoubleList<DoubleNode>& other) {
 	while (!other.isEmpty()) {

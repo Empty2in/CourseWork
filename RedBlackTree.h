@@ -72,8 +72,6 @@ public:
 
     NodePtr minimum(NodePtr node);
     NodePtr maximum(NodePtr node);
-    NodePtr successor(NodePtr x);
-    NodePtr predecessor(NodePtr x);
 
     void insert(const TreeList& key);
     void deleteNode(const TreeList& data);
@@ -123,7 +121,7 @@ inline RedBlackTree<TreeList>& RedBlackTree<TreeList>::operator=(const RedBlackT
         RedBlackTree<TreeList> temp(src);
         swap(temp);
     }
-    return *this->clone();
+    return *this;
 }
 template<class TreeList>
 inline RedBlackTree<TreeList>& RedBlackTree<TreeList>::operator=(RedBlackTree<TreeList>&& src) noexcept {
@@ -210,92 +208,13 @@ RedBlackTree<TreeList>::template NodePtr RedBlackTree<TreeList>::searchNode(Node
 }
 
 template<class TreeList>
-void RedBlackTree<TreeList>::deleteFix(NodePtr x) {
-    Node* s = nullptr;
-    while (x != this->root_ && x->color_ == BLACK) {
-        if (x == x->parent_->left_) {
-            s = x->parent_->right_;
-            if (s->color_ == RED) {
-                s->color_ = BLACK;
-                x->parent_->color_ = RED;
-                leftRotate(x->parent_);
-                s = x->parent_->right_;
-            }
-
-            if (s->left_->color_ == BLACK && s->right_->color_ == BLACK) {
-                s->color_ = RED;
-                x = x->parent_;
-            }
-            else {
-                if (s->right_->color_ == BLACK) {
-                    s->left_->color_ = BLACK;
-                    s->color_ = RED;
-                    rightRotate(s);
-                    s = x->parent_->right_;
-                }
-
-                s->color_ = x->parent_->color_;
-                x->parent_->color_ = BLACK;
-                s->right_->color_ = BLACK;
-                leftRotate(x->parent_);
-                x = this->root_;
-            }
-        }
-        else {
-            s = x->parent_->left_;
-            if (s->color_ == 1) {
-                s->color_ = BLACK;
-                x->parent_->color_ = RED;
-                rightRotate(x->parent_);
-                s = x->parent_->left_;
-            }
-
-            if (s->left_->color_ == BLACK && s->right_->color_ == BLACK) {
-                s->color_ = RED;
-                x = x->parent_;
-            }
-            else {
-                if (s->left_->color_ == BLACK) {
-                    s->right_->color_ = BLACK;
-                    s->color_ = RED;
-                    leftRotate(s);
-                    s = x->parent_->left_;
-                }
-
-                s->color_ = x->parent_->color_;
-                x->parent_->color_ = BLACK;
-                s->left_->color_ = BLACK;
-                rightRotate(x->parent_);
-                x = this->root_;
-            }
-        }
-    }
-    x->color_ = BLACK;
-}
-template<class TreeList>
 void RedBlackTree<TreeList>::deleteNode(const TreeList& data) {
     deleteNode(this->root_, data);
 }
 template<class TreeList>
 void RedBlackTree<TreeList>::deleteNode(NodePtr node, const TreeList& key) {
-    NodePtr z = TNULL;
+    NodePtr z = searchNode(this->root_, key);
     NodePtr x, y;
-    while (node != TNULL) {
-        if (node->key_ == key) {
-            z = node;
-        }
-
-        if (node->key_ < key) {
-            node = node->right_;
-        }
-        else {
-            node = node->left_;
-        }
-    }
-    if (z == TNULL) {
-        return;
-    }
-
     y = z;
     Color y_orig = y->color_;
     if (z->left_ == TNULL) {
@@ -329,6 +248,69 @@ void RedBlackTree<TreeList>::deleteNode(NodePtr node, const TreeList& key) {
         deleteFix(x);
     }
 }
+template<class TreeList>
+void RedBlackTree<TreeList>::deleteFix(NodePtr x) {
+    Node* s = nullptr;
+    while (x != this->root_ && x->color_ == BLACK) {
+        if (x == x->parent_->left_) {
+            s = x->parent_->right_;
+            if (s->color_ == RED) {
+                s->color_ = BLACK;
+                x->parent_->color_ = RED;
+                leftRotate(x->parent_);
+                s = x->parent_->right_;
+            }
+
+            if (s->left_->color_ == BLACK && s->right_->color_ == BLACK) {
+                s->color_ = RED;
+                x = x->parent_;
+            }
+            else {
+                if (s->right_->color_ == BLACK) {
+                    s->left_->color_ = BLACK;
+                    s->color_ = RED;
+                    rightRotate(s);
+                    s = x->parent_->right_;
+                }
+
+                s->color_ = x->parent_->color_;
+                x->parent_->color_ = BLACK;
+                s->right_->color_ = BLACK;
+                leftRotate(x->parent_);
+                x = this->root_;
+            }
+        }
+        else {
+            s = x->parent_->left_;
+            if (s->color_ == RED) {
+                s->color_ = BLACK;
+                x->parent_->color_ = RED;
+                rightRotate(x->parent_);
+                s = x->parent_->left_;
+            }
+
+            if (s->left_->color_ == BLACK && s->right_->color_ == BLACK) {
+                s->color_ = RED;
+                x = x->parent_;
+            }
+            else {
+                if (s->left_->color_ == BLACK) {
+                    s->right_->color_ = BLACK;
+                    s->color_ = RED;
+                    leftRotate(s);
+                    s = x->parent_->left_;
+                }
+
+                s->color_ = x->parent_->color_;
+                x->parent_->color_ = BLACK;
+                s->left_->color_ = BLACK;
+                rightRotate(x->parent_);
+                x = this->root_;
+            }
+        }
+    }
+    x->color_ = BLACK;
+}
 
 template<class TreeList>
 void RedBlackTree<TreeList>::insertFix(NodePtr k) {
@@ -354,7 +336,6 @@ void RedBlackTree<TreeList>::insertFix(NodePtr k) {
         }
         else {
             u = k->parent_->parent_->right_;
-
             if (u->color_ == RED) {
                 u->color_ = BLACK;
                 k->parent_->color_ = BLACK;
@@ -524,7 +505,6 @@ inline void RedBlackTree<TreeList>::clear() {
     deleteUnderTree(this->root_);
 }
 
-
 template<class TreeList>
 void RedBlackTree<TreeList>::print(std::ostream& out) const {
     if (!isEmpty()) {
@@ -557,31 +537,6 @@ RedBlackTree<TreeList>::template NodePtr RedBlackTree<TreeList>::maximum(NodePtr
         node = node->right_;
     }
     return node;
-}
-template<class TreeList>
-RedBlackTree<TreeList>::template NodePtr RedBlackTree<TreeList>::successor(NodePtr x) {
-    if (x->right_ != TNULL) {
-        return minimum(x->right_);
-    }
-
-    NodePtr y = x->parent_;
-    while (y != TNULL && x == y->right_) {
-        x = y;
-        y = y->parent_;
-    }
-    return y;
-}
-template<class TreeList>
-RedBlackTree<TreeList>::template NodePtr RedBlackTree<TreeList>::predecessor(NodePtr x) {
-    if (x->left_ != TNULL) {
-        return maximum(x->left_);
-    }
-    NodePtr y = x->parent_;
-    while (y != TNULL && x == y->left_) {
-        x = y;
-        y = y->parent_;
-    }
-    return y;
 }
 
 #endif

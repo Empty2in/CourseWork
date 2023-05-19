@@ -102,7 +102,6 @@ std::ostream& operator<<(std::ostream& out, const RBTNode& node) {
 	}
 	return out;
 }
-
 std::string RBTNode::toLowerStr() const {
 	std::string loWord = this->word_;
 	std::transform(
