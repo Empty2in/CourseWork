@@ -214,6 +214,9 @@ void RedBlackTree<TreeList>::deleteNode(const TreeList& data) {
 template<class TreeList>
 void RedBlackTree<TreeList>::deleteNode(NodePtr node, const TreeList& key) {
     NodePtr z = searchNode(this->root_, key);
+    if (z == nullptr || z == TNULL) {
+        return;
+    }
     NodePtr x, y;
     y = z;
     Color y_orig = y->color_;
@@ -250,7 +253,7 @@ void RedBlackTree<TreeList>::deleteNode(NodePtr node, const TreeList& key) {
 }
 template<class TreeList>
 void RedBlackTree<TreeList>::deleteFix(NodePtr x) {
-    Node* s = nullptr;
+    NodePtr s = nullptr;
     while (x != this->root_ && x->color_ == BLACK) {
         if (x == x->parent_->left_) {
             s = x->parent_->right_;

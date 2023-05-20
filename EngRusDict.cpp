@@ -106,7 +106,9 @@ void EngRusDict::deleteTranslate(std::string word, std::string delTrans) {
 		return;
 	}
 	RBTNodePtr delNode = this->searchWordNode(word);
-	delNode->deleteTranslate(delTrans);
+	if (delNode) {
+		delNode->deleteTranslate(delTrans);
+	}
 }
 
 bool EngRusDict::isEmpty() const {
